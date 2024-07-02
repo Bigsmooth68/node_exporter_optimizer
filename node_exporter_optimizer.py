@@ -7,7 +7,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
                         prog='node_exporter_optimizer',
                         description='Simple script to optimize node manager startup options based on exposed metrics')
-    parser.add_argument('url')
+    parser.add_argument('url',default='http://localhost:9100')
     args = parser.parse_args()
 
     # Add http if missing
