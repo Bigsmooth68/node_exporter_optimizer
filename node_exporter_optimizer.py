@@ -1,7 +1,4 @@
-import argparse
-import requests
-from prometheus_client.parser import text_string_to_metric_families
-
+import argparse, requests, re
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -15,6 +12,18 @@ if __name__ == '__main__':
 
     metrics = requests.get(url + '/metrics').text
 
-    for family in text_string_to_metric_families(metrics):
-        for sample in family.samples:
-            print("Name: {0} Labels: {1} Value: {2}".format(*sample))
+    count = 0
+    node_exporter_arguments = ''
+    for line in metrics.splitlines():
+        if line.startswith('node_scrape_collector_success'):
+            result = re.findall('"(.*)"', line)
+            collector = result[0]
+            if ' 0' in line:   
+                node_exporter_arguments += f'--no-collector.{collector} '
+                count += 1
+    
+    if count == 0:
+        print(f'No failed collectors detected on {url}')
+    else:
+        print(f'Failed collectors count: {count}')
+        print(f'Add following arguments to node_exporter: {node_exporter_arguments}')
