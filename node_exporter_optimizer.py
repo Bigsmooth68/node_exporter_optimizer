@@ -8,9 +8,13 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Add http if missing
-    url = args.url if args.url.startswith('http') else 'http://' + args.url
+    url = args.url if args.url.startswith('http') else 'http://' + args.url + '/metrics'
 
-    metrics = requests.get(url + '/metrics').text
+    try:
+        metrics = requests.get(url).text
+    except:
+        print(f'Cannot connect to {url}')
+        exit(1)
 
     count = 0
     node_exporter_arguments = ''
