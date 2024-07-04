@@ -2,9 +2,14 @@ FROM python:3
 
 WORKDIR /app
 
-COPY node_exporter_optimizer.py /app/
+RUN useradd -m runuser
+RUN chown -R runuser:runuser /app
+USER runuser
+ENV PATH="/home/runuser/.local/bin:${PATH}"
 
-RUN pip install --no-cache-dir requests
+RUN pip install --user --no-cache-dir --disable-pip-version-check requests
+
+COPY node_exporter_optimizer.py /app/
 
 ARG URL=--url http://$HOSTNAME:9100
 
