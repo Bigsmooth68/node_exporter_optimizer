@@ -46,12 +46,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
                         prog='node_exporter_optimizer',
                         description='Simple script to optimize node manager based on exposed metrics')
-    parser.add_argument('url', type=str, default='http://localhost:9100', help='url of node_exporter to analyze')
+    parser.add_argument('url', type=str, nargs='?', default='http://localhost:9100', help='url of node_exporter to analyze')
     parser.add_argument('--compare', '-c', type=str, nargs=2, help='provide two node_exporter url to compare list of metrics')
-    parser.add_argument('--versbose','-v', action='store_true', help='More verbose output')
+    parser.add_argument('--verbose','-v', action='store_true', help='More verbose output')
     args = parser.parse_args()
 
-    if args.debug:
+    if args.verbose:
         logger.setLevel(logging.DEBUG)
 
     if args.url:
