@@ -4,10 +4,7 @@ import sys, logging
 def format_url(url: str):
     return url if args.url.startswith('http') else 'http://' + url + '/metrics'
 
-def get_failed_collectors(url: str):
-
-    url = format_url(url)
-    # Gathering metrics
+def get_metrics(url: str):
     try:
         logger.debug(f"Trying to connect to {url}")
         metrics = requests.get(url).text
@@ -15,6 +12,13 @@ def get_failed_collectors(url: str):
     except:
         logger.error(f'Cannot connect to {url}')
         exit(1)
+    return metrics
+
+def get_failed_collectors(url: str):
+
+    url = format_url(url)
+    # Gathering metrics
+    metrics = get_metrics(url)
 
     count, node_exporter_arguments = 0, ''
     # Loop on metrics
@@ -33,6 +37,12 @@ def get_failed_collectors(url: str):
     else:
         print(f'Failed collectors count: {count}')
         print(f'Add following arguments to node_exporter: {node_exporter_arguments}')
+
+def compare_metrics(url1: str, url2: str):
+    metrics1 = get_metrics(url1)
+    metrics2 = get_metrics(url2)
+
+    
 
  # End of functions
 
