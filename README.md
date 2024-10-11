@@ -7,7 +7,7 @@ It is a simple script to optimize node manager startup options based on exposed 
 ## Optimizer
 
 ```bash
-python node_exporter_optimizer.py --url <url>
+python node_exporter_optimizer.py <url>
 ```
 `url` can be formatted like `hostname:port` or `http://hostname:port`. Default value is `http://localhost:9100`.
 

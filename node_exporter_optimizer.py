@@ -4,28 +4,9 @@ import sys, logging
 def format_url(url: str):
     return url if args.url.startswith('http') else 'http://' + url + '/metrics'
 
+def get_failed_collectors(url: str):
 
-if __name__ == '__main__':
-
-    # Prepare logger
-    logger = logging.getLogger("node_exporter_optimizer")
-    logging.basicConfig(stream=sys.stdout)
-
-    # Argument management
-    parser = argparse.ArgumentParser(
-                        prog='node_exporter_optimizer',
-                        description='Simple script to optimize node manager startup options based on exposed metrics')
-    parser.add_argument('--url', type=str, default='http://localhost:9100', help='url of node_exporter to analyze')
-    parser.add_argument('--compare', '-c', type=str, nargs=2, help='provide two node_exporter url to compare list of metrics')
-    parser.add_argument('--debug', action='store_true', help='More verbose output')
-    args = parser.parse_args()
-
-    if args.debug:
-        logger.setLevel(logging.DEBUG)
-
-    # Add http if missing
-    url = format_url(args.url)
-
+    url = format_url(url)
     # Gathering metrics
     try:
         logger.debug(f"Trying to connect to {url}")
@@ -52,3 +33,26 @@ if __name__ == '__main__':
     else:
         print(f'Failed collectors count: {count}')
         print(f'Add following arguments to node_exporter: {node_exporter_arguments}')
+
+ # End of functions
+
+if __name__ == '__main__':
+
+    # Prepare logger
+    logger = logging.getLogger("node_exporter_optimizer")
+    logging.basicConfig(stream=sys.stdout)
+
+    # Argument management
+    parser = argparse.ArgumentParser(
+                        prog='node_exporter_optimizer',
+                        description='Simple script to optimize node manager based on exposed metrics')
+    parser.add_argument('url', type=str, default='http://localhost:9100', help='url of node_exporter to analyze')
+    parser.add_argument('--compare', '-c', type=str, nargs=2, help='provide two node_exporter url to compare list of metrics')
+    parser.add_argument('--debug', action='store_true', help='More verbose output')
+    args = parser.parse_args()
+
+    if args.debug:
+        logger.setLevel(logging.DEBUG)
+
+    if args.url:
+        get_failed_collectors(args.url)
