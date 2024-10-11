@@ -2,21 +2,22 @@ import argparse, requests, re
 import sys, logging
 
 def format_url(url: str):
-    return url if args.url.startswith('http') else 'http://' + url + '/metrics'
+    return url if url.startswith('http') else 'http://' + url + '/metrics'
 
 def get_metrics(url: str):
+    url = format_url(url)
     try:
         logger.debug(f"Trying to connect to {url}")
         metrics = requests.get(url).text
         logger.debug("Connected")
-    except:
+    except Exception as err:
         logger.error(f'Cannot connect to {url}')
+        logger.error(err)
         exit(1)
     return metrics
 
 def get_failed_collectors(url: str):
 
-    url = format_url(url)
     # Gathering metrics
     metrics = get_metrics(url)
 
@@ -38,11 +39,25 @@ def get_failed_collectors(url: str):
         print(f'Failed collectors count: {count}')
         print(f'Add following arguments to node_exporter: {node_exporter_arguments}')
 
+def filter_metrics_comments(metrics: str):
+    pattern = r'^#.*$'
+    
+    # Trouve toutes les correspondances dans le texte multilignes
+    matches = re.findall(pattern, metrics, re.MULTILINE)
+    
+    # Retourne les correspondances sous forme de liste
+    return matches
+
 def compare_metrics(url1: str, url2: str):
     metrics1 = get_metrics(url1)
     metrics2 = get_metrics(url2)
 
-    
+    f_metrics1 = filter_metrics_comments(metrics1)
+    f_metrics2 = filter_metrics_comments(metrics2)
+
+    diff = set(f_metrics1) ^ set(f_metrics2)
+    logger.debug(list(diff))
+    logger.debug(len(f_metrics1), len(f_metrics2))
 
  # End of functions
 
@@ -56,13 +71,21 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
                         prog='node_exporter_optimizer',
                         description='Simple script to optimize node manager based on exposed metrics')
-    parser.add_argument('url', type=str, nargs='?', default='http://localhost:9100', help='url of node_exporter to analyze')
-    parser.add_argument('--compare', '-c', type=str, nargs=2, help='provide two node_exporter url to compare list of metrics')
+    parser.add_argument('url', type=str, nargs='+', default='http://localhost:9100', help='url of node_exporter to analyze')
     parser.add_argument('--verbose','-v', action='store_true', help='More verbose output')
     args = parser.parse_args()
 
     if args.verbose:
         logger.setLevel(logging.DEBUG)
+    
+    logger.debug(f"Arguments: {args}")
 
-    if args.url:
-        get_failed_collectors(args.url)
+    if len(args.url) == 1:
+        logger.debug("Running in optimizer mode")
+        get_failed_collectors(args.url[0])
+    elif len(args.url) == 2:
+        logger.debug("Running in compare mode")
+        logger.debug(args.url)
+        compare_metrics(args.url[0], args.url[1])
+    
+    logger.debug("Script terminated")
