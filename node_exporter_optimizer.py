@@ -56,8 +56,10 @@ def compare_metrics(url1: str, url2: str):
     f_metrics2 = filter_metrics_comments(metrics2)
 
     diff = set(f_metrics1) ^ set(f_metrics2)
-    logger.debug(list(diff))
-    logger.debug(len(f_metrics1), len(f_metrics2))
+    logger.debug(f"Length: {len(f_metrics1)} {len(f_metrics2)}")
+
+    for element in diff:
+        print(element)
 
  # End of functions
 
