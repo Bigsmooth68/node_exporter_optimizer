@@ -1,6 +1,6 @@
 name: Build and publish docker image
 
-on: []
+on: workflow_dispatch
 
 jobs:
   main:
@@ -9,5 +9,4 @@ jobs:
     steps:
 
     - uses: actions/checkout@v2
-  
   
